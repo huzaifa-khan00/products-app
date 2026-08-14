@@ -1,22 +1,23 @@
 import { useEffect, useState } from "react";
-import { Outlet, useNavigate } from "react-router-dom";
+import {useNavigate } from "react-router-dom";
+import LoginSuccess from '../components/LoginSuccess.jsx'
 
 function HomePage() {
-  let userOjb = JSON.parse(window.localStorage.getItem('user1'));
-  let [isLoggedIn, setIsLoggedIn] = useState(false);
+  let user = JSON.parse(window.localStorage.getItem('user1'));
   let navigate = useNavigate();
 
   useEffect(()=> {
-    let data = (JSON.parse(window.localStorage.getItem('user1')))
-    !data && navigate('/');
-  },[])
+    !user && navigate('/');
+  },[user])
 
   return (
     <div className="text-gray-600 dark:text-slate-300">
+      
+      {user && <LoginSuccess user={user} />}
       {/* Hero */}
       <section className="text-center py-24 px-5 bg-gray-50 dark:bg-slate-900/50">
         <h1 className="text-4xl md:text-5xl font-medium text-gray-900 dark:text-white mb-4">
-         Hey {userOjb?.name ? userOjb.name : "Guest"}! Welcome to Our Store
+         Hey {user?.name ? user.name : "Guest"}! Welcome to Our Store
         </h1>
         <p className="text-lg mb-8 max-w-xl mx-auto">
           Find the best products at the best prices, all in one place.
