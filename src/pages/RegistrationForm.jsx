@@ -61,7 +61,7 @@ const handleChange = (e) => {
     let user = JSON.parse(window.localStorage.getItem("user"));
     setIsData(user);
     console.log(user);
-  }, []);
+  }, [name, email, password]);
 
   useEffect(() => {}, [emailErr, passwordErr]);
 
