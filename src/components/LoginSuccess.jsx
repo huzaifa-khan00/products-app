@@ -1,60 +1,51 @@
-import { useEffect } from "react";
-
-function LoginSuccess(user) {
-
+function LoginSuccess({ user }) {
   return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 320 100"
-      width="320"
-      height="100"
-      fill="none"
+    <div
+      className="
+        fixed top-5 left-1/2 -translate-x-1/2 z-50
+        flex items-center gap-3
+        px-4 py-3
+        min-w-[280px]
+        rounded-xl
+        bg-white dark:bg-slate-800
+        border border-gray-200 dark:border-slate-700
+        shadow-lg
+        text-gray-800 dark:text-white
+        animate-[slideDown_0.4s_ease-out]
+      "
     >
-      <circle
-        cx="50"
-        cy="50"
-        r="32"
-        stroke="currentColor"
-        strokeWidth="4"
-        strokeDasharray="201"
-        strokeDashoffset="201"
-      >
-        <animate
-          attributeName="stroke-dashoffset"
-          from="201"
-          to="0"
-          dur="0.5s"
-          fill="freeze"
-        />
-      </circle>
+      {/* Animated green tick */}
+      <div className="flex-shrink-0 w-9 h-9 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+        <svg
+          viewBox="0 0 24 24"
+          className="w-6 h-6 text-green-500"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="3"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path
+            d="M5 12.5L9.5 17L19 7"
+            strokeDasharray="20"
+            strokeDashoffset="20"
+          >
+            <animate
+              attributeName="stroke-dashoffset"
+              from="20"
+              to="0"
+              dur="0.4s"
+              fill="freeze"
+            />
+          </path>
+        </svg>
+      </div>
 
-      <path
-        d="M34 50L45 61L67 38"
-        stroke="currentColor"
-        strokeWidth="5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeDasharray="45"
-        strokeDashoffset="45"
-      >
-        <animate
-          attributeName="stroke-dashoffset"
-          from="45"
-          to="0"
-          dur="0.35s"
-          begin="0.45s"
-          fill="freeze"
-        />
-      </path>
-
-      <text x="95" y="45" fill="currentColor" fontSize="18" fontWeight="600">
-        Logged in
-      </text>
-
-      <text x="95" y="68" fill="currentColor" fontSize="14">
-        Welcome, {user.user.name}
-      </text>
-    </svg>
+      {/* Message */}
+      <div className="leading-tight">
+        <p className="text-sm font-semibold">Logged in successfully</p>
+      </div>
+    </div>
   );
 }
 

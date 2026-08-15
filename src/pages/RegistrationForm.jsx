@@ -1,9 +1,11 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useContext } from "react";
+import { ThemeContext } from "../../context/ThemeContext";
 
 function RegistrationForm() {
   let [isSubmit, setIsSubmit] = useState(false);
-  let [name, setName] = useState("");
+  let [name, setName] = useState("Guest");
   let [email, setEmail] = useState("");
   let [password, setPassword] = useState("");
   let nameTimerRef = useRef(null);
@@ -13,28 +15,55 @@ function RegistrationForm() {
     name: name,
     email: email,
     password: password,
+    isFirstLogin: true,
   };
   let [isData, setIsData] = useState(false);
   let [isEvent, setIsEvent] = useState(false);
   let navigate = useNavigate();
+  let { theme, toggleTheme } = useContext(ThemeContext);
+  let [isClicked, setIsClicked] = useState(false);
+  let [emailErr, setEmailErr] = useState(false);
+  let [passwordErr, setPasswordErr] = useState(false);
+  let emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  let passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
-  // A single function to update any field dynamically
-  const handleChange = (e) => {
-    let n = e.target.name;
-    let v = e.target.value;
-    if (n === "fullName") {
-      setName(v);
-    } else if (n === "email") {
+  function isFieldValid(fieldName, value) {
+    if (fieldName === "email") return emailRegex.test(value);
+    if (fieldName === "password") return passwordRegex.test(value);
+    return true;
+  }
+
+const handleChange = (e) => {
+  let n = e.target.name;
+  let v = e.target.value;
+
+  if (n === "fullName") {
+    setName(v);
+  } else if (n === "email") {
+    if (isFieldValid("email", v)) {
+      setEmailErr(false);
       setEmail(v);
     } else {
-      setPassword(v);
+      setEmailErr(true);
     }
-  };
+  } else if (n === "password") {
+    if (isFieldValid("password", v)) {
+      setPassword(v);
+      setPasswordErr(false);
+    } else {
+      setPasswordErr(true);
+    }
+  }
+};
 
   useEffect(() => {
-    window.localStorage.setItem("user1", JSON.stringify(userAccount));
-    setIsData(JSON.parse(window.localStorage.getItem("user1")));
-  }, [userAccount.name, userAccount.email, userAccount.password]);
+    window.localStorage.setItem("user", JSON.stringify(userAccount));
+    let user = JSON.parse(window.localStorage.getItem("user"));
+    setIsData(user);
+    console.log(user);
+  }, []);
+
+  useEffect(() => {}, [emailErr, passwordErr]);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-slate-900/50 backdrop-blur-sm animate-fadeIn overflow-hidden">
@@ -99,6 +128,7 @@ function RegistrationForm() {
                   d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z"
                 />
               </svg>
+
               <input
                 onChange={(e) => {
                   nameTimerRef.current && clearTimeout(nameTimerRef.current);
@@ -139,10 +169,15 @@ function RegistrationForm() {
               </svg>
               <input
                 onChange={(e) => {
-                  emailTimerRef.current && clearTimeout(emailTimerRef.current);
-                  emailTimerRef.current = setTimeout(() => {
+                  if (!isFieldValid("email", e.target.value)) {
                     handleChange(e);
-                  }, 2000);
+                  } else {
+                    emailTimerRef.current &&
+                      clearTimeout(emailTimerRef.current);
+                    emailTimerRef.current = setTimeout(() => {
+                      handleChange(e);
+                    }, 2000);
+                  }
                 }}
                 type="email"
                 id="email"
@@ -151,6 +186,11 @@ function RegistrationForm() {
                 className="w-full rounded-xl border border-slate-200 dark:border-slate-600 bg-white/70 dark:bg-slate-700/60 text-gray-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 pl-10 pr-3 py-2.5 shadow-sm transition-colors focus:border-indigo-400 focus:bg-white dark:focus:bg-slate-700 focus:outline-none focus:ring-4 focus:ring-indigo-200/60 dark:focus:ring-indigo-900/40"
               />
             </div>
+            {emailErr && (
+              <p className="text-xs text-red-500 mt-1.5 ml-1">
+                Please enter a valid email address (e.g., name@example.com).
+              </p>
+            )}
           </div>
 
           <div>
@@ -177,11 +217,15 @@ function RegistrationForm() {
               </svg>
               <input
                 onChange={(e) => {
-                  passwordTimerRef.current &&
-                    clearTimeout(passwordTimerRef.current);
-                  passwordTimerRef.current = setTimeout(() => {
+                  if (!isFieldValid("password", e.target.value)) {
                     handleChange(e);
-                  }, 2000);
+                  } else {
+                    passwordTimerRef.current &&
+                      clearTimeout(passwordTimerRef.current);
+                    passwordTimerRef.current = setTimeout(() => {
+                      handleChange(e);
+                    }, 2000);
+                  }
                 }}
                 type="password"
                 id="password"
@@ -190,6 +234,12 @@ function RegistrationForm() {
                 className="w-full rounded-xl border border-slate-200 dark:border-slate-600 bg-white/70 dark:bg-slate-700/60 text-gray-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 pl-10 pr-3 py-2.5 shadow-sm transition-colors focus:border-indigo-400 focus:bg-white dark:focus:bg-slate-700 focus:outline-none focus:ring-4 focus:ring-indigo-200/60 dark:focus:ring-indigo-900/40"
               />
             </div>
+            {passwordErr && (
+              <p className="text-xs text-red-500 mt-1.5 ml-1">
+                Must be 8+ characters with uppercase, lowercase, a number, and a
+                special character.
+              </p>
+            )}
           </div>
 
           <div
@@ -198,7 +248,7 @@ function RegistrationForm() {
                 (success) => {
                   let lon = success.coords.longitude;
                   let lat = success.coords.latitude;
-                  console.log("Got Loation", lon, lat);
+                  console.log("Got Location", lon, lat);
                 },
                 (error) => {
                   error.PERMISSION_DENIED
@@ -235,8 +285,9 @@ function RegistrationForm() {
 
           <button
             onClick={() => setIsEvent(true)}
+            disabled={emailErr || passwordErr ? true : false}
             type="submit"
-            className="w-full mt-2 bg-indigo-600 text-white py-2.5 rounded-full font-semibold shadow-md shadow-indigo-600/20 hover:bg-indigo-700 hover:scale-[1.02] transition-all"
+            className="w-full mt-2 bg-indigo-600 text-white py-2.5 rounded-full font-semibold shadow-md shadow-indigo-600/20 hover:bg-indigo-700 hover:scale-[1.02] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isEvent ? (
               <span className="flex items-center justify-center w-full">
