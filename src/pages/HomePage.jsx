@@ -14,11 +14,11 @@ function HomePage() {
   useEffect(() => {
     let timer;
     let secondTimer;
-    if (user?.isFirstLogin) {
+    if (user) {
       timer = setTimeout(() => {
         setShowLogin(true);
         secondTimer = setTimeout(() => {
-          setShowLogin(false)
+          setShowLogin(false) 
           user.isFirstLogin = false;
           window.localStorage.setItem("user", JSON.stringify(user));
           user = JSON.parse(window.localStorage.getItem("user"))
@@ -34,7 +34,7 @@ function HomePage() {
 
   return (
     <div className="text-gray-600 dark:text-slate-300">
-      {showLogin && <LoginSuccess user={user.name} />}
+      {showLogin && user?.isFirstLogin ? <LoginSuccess user={user}/> : !user?.isFirstLogin && showLogin ? <LoginSuccess user={{name: "Already Logged in"}}/> : null}
       {/* Hero */}
       <section className="text-center py-24 px-5 bg-gray-50 dark:bg-slate-900/50">
         <h2 className="text-4xl md:text-5xl font-medium text-gray-900 dark:text-white mb-4">

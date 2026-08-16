@@ -5,7 +5,7 @@ import { ThemeContext } from "../../context/ThemeContext";
 
 function RegistrationForm() {
   let [isSubmit, setIsSubmit] = useState(false);
-  let [name, setName] = useState("Guest");
+  let [name, setName] = useState("Guest");  
   let [email, setEmail] = useState("");
   let [password, setPassword] = useState("");
   let nameTimerRef = useRef(null);
@@ -28,6 +28,7 @@ function RegistrationForm() {
   let passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
   let [location, setLocation] = useState(null);
   let [isLoading, setIsLoading] = useState(false);
+  let isFirstRender = useRef(true);
 
   function isFieldValid(fieldName, value) {
     if (fieldName === "email") return emailRegex.test(value);
@@ -66,6 +67,10 @@ function RegistrationForm() {
 }, [])
 
   useEffect(() => {
+    if(isFirstRender.current){
+      isFirstRender.current = false;
+      return
+    }
     window.localStorage.setItem("user", JSON.stringify(userAccount));
     let user = JSON.parse(window.localStorage.getItem("user"));
     setIsData(user);

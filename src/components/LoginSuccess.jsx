@@ -1,4 +1,4 @@
-function LoginSuccess({ user }) {
+function LoginSuccess({user}) {
   return (
     <div
       className="
@@ -43,7 +43,7 @@ function LoginSuccess({ user }) {
 
       {/* Message */}
       <div className="leading-tight">
-        <p className="text-sm font-semibold">{user === 'Guest' ? "Logged in as Guest" : "Logged in Successfully"}</p>
+        <p className="text-sm font-semibold">{user?.name === 'Guest' ? "Logged in as Guest" : user?.name === "Already Logged in" ? user?.name : user?.name}</p>
       </div>
     </div>
   );
