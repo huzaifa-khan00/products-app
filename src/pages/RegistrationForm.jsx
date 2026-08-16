@@ -2,12 +2,18 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { ThemeContext } from "../../context/ThemeContext";
+import axios from "axios";
 
 function RegistrationForm() {
   let [isSubmit, setIsSubmit] = useState(false);
-  let [name, setName] = useState("Guest");  
+  let [name, setName] = useState("Guest");
   let [email, setEmail] = useState("");
   let [password, setPassword] = useState("");
+  let [address, setAddress] = useState({
+    city: "",
+    district: "",
+    postcode: "",
+  });
   let nameTimerRef = useRef(null);
   let emailTimerRef = useRef(null);
   let passwordTimerRef = useRef(null);
@@ -16,6 +22,7 @@ function RegistrationForm() {
     email: email,
     password: password,
     isFirstLogin: true,
+    address: address,
   };
   let [isData, setIsData] = useState(false);
   let [isEvent, setIsEvent] = useState(false);
@@ -25,7 +32,8 @@ function RegistrationForm() {
   let [emailErr, setEmailErr] = useState(false);
   let [passwordErr, setPasswordErr] = useState(false);
   let emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-  let passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+  let passwordRegex =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
   let [location, setLocation] = useState(null);
   let [isLoading, setIsLoading] = useState(false);
   let isFirstRender = useRef(true);
@@ -60,24 +68,22 @@ function RegistrationForm() {
   };
 
   useEffect(() => {
-  let existingUser = JSON.parse(window.localStorage.getItem('user'));
-  if (existingUser) {
-    navigate('/home', { replace: true });
-  }
-}, [])
+    let existingUser = JSON.parse(window.localStorage.getItem("user"));
+    if (existingUser) {
+      navigate("/home", { replace: true });
+    }
+  }, []);
 
   useEffect(() => {
-    if(isFirstRender.current){
+    if (isFirstRender.current) {
       isFirstRender.current = false;
-      return
+      return;
     }
     window.localStorage.setItem("user", JSON.stringify(userAccount));
     let user = JSON.parse(window.localStorage.getItem("user"));
     setIsData(user);
     console.log(user);
-  }, [name, email, password]);
-
-  useEffect(() => {}, [emailErr, passwordErr]);
+  }, [name, email, password, address]);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-slate-900/50 backdrop-blur-sm animate-fadeIn overflow-hidden">
@@ -267,11 +273,24 @@ function RegistrationForm() {
               setLocation(false);
               setIsLoading(true);
               navigator.geolocation.getCurrentPosition(
-                (success) => {
+                async (success) => {
                   let lon = success.coords.longitude;
                   let lat = success.coords.latitude;
                   setLocation(lon ? { longitude: lon, latitude: lat } : false);
-                  console.log(lon, lat);
+                  try {
+                    let response = await axios.get(
+                      `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&zoom=18&addressdetails=1`,
+                    );
+                    let addr = response.data.address;
+                    setAddress({
+                      city: addr.city,
+                      district: addr.city_district,
+                      postcode: addr.postcode,
+                    });
+                    console.log(userAccount.address);
+                  } catch (error) {
+                    console.error(error);
+                  }
                   setIsLoading(false);
                 },
                 (error) => {
