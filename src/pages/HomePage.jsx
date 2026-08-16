@@ -23,7 +23,7 @@ function HomePage() {
           window.localStorage.setItem("user", JSON.stringify(user));
           user = JSON.parse(window.localStorage.getItem("user"))
         }, 1500);
-      }, 1000);
+      }, 500);
     }
 
     return () => {

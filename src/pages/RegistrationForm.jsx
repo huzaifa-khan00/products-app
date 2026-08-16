@@ -26,6 +26,8 @@ function RegistrationForm() {
   let [passwordErr, setPasswordErr] = useState(false);
   let emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   let passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+  let [location, setLocation] = useState(null);
+  let [isLoading, setIsLoading] = useState(false);
 
   function isFieldValid(fieldName, value) {
     if (fieldName === "email") return emailRegex.test(value);
@@ -33,28 +35,35 @@ function RegistrationForm() {
     return true;
   }
 
-const handleChange = (e) => {
-  let n = e.target.name;
-  let v = e.target.value;
+  const handleChange = (e) => {
+    let n = e.target.name;
+    let v = e.target.value;
 
-  if (n === "fullName") {
-    setName(v);
-  } else if (n === "email") {
-    if (isFieldValid("email", v)) {
-      setEmailErr(false);
-      setEmail(v);
-    } else {
-      setEmailErr(true);
+    if (n === "fullName") {
+      setName(v);
+    } else if (n === "email") {
+      if (isFieldValid("email", v)) {
+        setEmailErr(false);
+        setEmail(v);
+      } else {
+        setEmailErr(true);
+      }
+    } else if (n === "password") {
+      if (isFieldValid("password", v)) {
+        setPassword(v);
+        setPasswordErr(false);
+      } else {
+        setPasswordErr(true);
+      }
     }
-  } else if (n === "password") {
-    if (isFieldValid("password", v)) {
-      setPassword(v);
-      setPasswordErr(false);
-    } else {
-      setPasswordErr(true);
-    }
+  };
+
+  useEffect(() => {
+  let existingUser = JSON.parse(window.localStorage.getItem('user'));
+  if (existingUser) {
+    navigate('/home', { replace: true });
   }
-};
+}, [])
 
   useEffect(() => {
     window.localStorage.setItem("user", JSON.stringify(userAccount));
@@ -169,6 +178,9 @@ const handleChange = (e) => {
               </svg>
               <input
                 onChange={(e) => {
+                  let valid = isFieldValid("email", e.target.value);
+                  setEmailErr(!valid);
+
                   if (!isFieldValid("email", e.target.value)) {
                     handleChange(e);
                   } else {
@@ -217,6 +229,9 @@ const handleChange = (e) => {
               </svg>
               <input
                 onChange={(e) => {
+                  let valid = isFieldValid("password", e.target.value);
+                  setPasswordErr(!valid);
+
                   if (!isFieldValid("password", e.target.value)) {
                     handleChange(e);
                   } else {
@@ -244,11 +259,15 @@ const handleChange = (e) => {
 
           <div
             onClick={() => {
+              setLocation(false);
+              setIsLoading(true);
               navigator.geolocation.getCurrentPosition(
                 (success) => {
                   let lon = success.coords.longitude;
                   let lat = success.coords.latitude;
-                  console.log("Got Location", lon, lat);
+                  setLocation(lon ? { longitude: lon, latitude: lat } : false);
+                  console.log(lon, lat);
+                  setIsLoading(false);
                 },
                 (error) => {
                   error.PERMISSION_DENIED
@@ -256,6 +275,7 @@ const handleChange = (e) => {
                     : console.log(error.POSITION_UNAVAILABLE)
                       ? console.log(error.message)
                       : console.log(error.message);
+                  setIsLoading(false);
                 },
               );
             }}
@@ -280,7 +300,59 @@ const handleChange = (e) => {
                 d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"
               />
             </svg>
-            Share My Location
+            {isLoading ? (
+              <svg
+                className="animate-spin h-5 w-5 text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                />
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                />
+              </svg>
+            ) : !isLoading && location ? (
+              <>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={2.5}
+                  stroke="currentColor"
+                  className="h-5 w-5 text-white"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M4.5 12.75l6 6 9-13.5"
+                    strokeDasharray="30"
+                    strokeDashoffset="30"
+                  >
+                    <animate
+                      attributeName="stroke-dashoffset"
+                      from="30"
+                      to="0"
+                      dur="0.4s"
+                      fill="freeze"
+                      begin="0s"
+                    />
+                  </path>
+                </svg>
+                <span>Location shared</span>
+              </>
+            ) : (
+              " Share My Location"
+            )}
           </div>
 
           <button

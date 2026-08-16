@@ -43,7 +43,7 @@ function LoginSuccess({ user }) {
 
       {/* Message */}
       <div className="leading-tight">
-        <p className="text-sm font-semibold">Logged in successfully</p>
+        <p className="text-sm font-semibold">{user === 'Guest' ? "Logged in as Guest" : "Logged in Successfully"}</p>
       </div>
     </div>
   );
