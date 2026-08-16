@@ -43,7 +43,7 @@ function LoginSuccess({user}) {
 
       {/* Message */}
       <div className="leading-tight">
-        <p className="text-sm font-semibold">{user?.name === 'Guest' ? "Logged in as Guest" : user?.name === "Already Logged in" ? user?.name : user?.name}</p>
+        <p className="text-sm font-semibold">{user?.name === 'Guest' ? "Logged in as Guest" : user?.name === "Already Logged in" ? user?.name : `Logged In as ${user?.name}`}</p>
       </div>
     </div>
   );

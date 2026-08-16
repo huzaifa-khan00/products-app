@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import LoginSuccess from "../components/LoginSuccess.jsx";
 
 function HomePage() {
   let user = JSON.parse(window.localStorage.getItem("user"));
   let navigate = useNavigate();
   let [showLogin, setShowLogin] = useState(false);
+  let location = useLocation();
 
   useEffect(() => {
     !user && navigate("/");
@@ -14,12 +15,13 @@ function HomePage() {
   useEffect(() => {
     let timer;
     let secondTimer;
-    if (user) {
+    if (user && location.state?.justLoggedIn) {
       timer = setTimeout(() => {
         setShowLogin(true);
         secondTimer = setTimeout(() => {
           setShowLogin(false) 
           user.isFirstLogin = false;
+          navigate(location.pathname, { replace: true, state: {} });
           window.localStorage.setItem("user", JSON.stringify(user));
           user = JSON.parse(window.localStorage.getItem("user"))
         }, 1500);

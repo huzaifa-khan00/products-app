@@ -70,7 +70,7 @@ function RegistrationForm() {
   useEffect(() => {
     let existingUser = JSON.parse(window.localStorage.getItem("user"));
     if (existingUser) {
-      navigate("/home", { replace: true });
+      navigate("/home", { replace: true, state:{justLoggedIn: true}});
     }
   }, []);
 
@@ -120,7 +120,7 @@ function RegistrationForm() {
           onSubmit={(e) => {
             e.preventDefault();
             setTimeout(() => {
-              isData && navigate("/home", { replace: true });
+              isData && navigate("/home", { replace: true, state:{justLoggedIn: true}});
               setIsEvent(false);
             }, 2000);
           }}
