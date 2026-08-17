@@ -11,6 +11,7 @@ import Product from "./pages/Product";
 import NotFound from "./components/NotFound.jsx";
 import Cart from "./pages/Cart.jsx";
 import RegistrationForm from "./pages/RegistrationForm.jsx";
+import CheckoutPage from "./pages/CheckoutPage.jsx";
 
 
 function App() {
@@ -24,6 +25,7 @@ function App() {
           <Route path="/about" element={<AboutPage />} />
           <Route path="/faq" element={<Faq />} />
           <Route path="/cart" element={<Cart />} />
+          <Route path="/checkout" element={<CheckoutPage />} />
         </Route>
         <Route>
         <Route path="/products" element={<Products />} />

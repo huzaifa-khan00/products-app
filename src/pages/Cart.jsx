@@ -1,10 +1,12 @@
 import { useContext, useEffect, useState } from "react";
 import { CartContext } from "../../context/CartItemContext";
 import CartItem from "../components/CartItem";
+import { useNavigate } from "react-router-dom";
 
 function Cart() {
   let { cartItems, setCartItems } = useContext(CartContext);
   let [isEmpty, setIsEmpty] = useState(false);
+  let navigate = useNavigate();
 
   let subtotal = cartItems.reduce(
     (sum, item) => sum + item.price * item.quantity,
@@ -97,7 +99,7 @@ function Cart() {
           </div>
         </div>
 
-        <button className="mt-4 w-full bg-indigo-600 text-white py-3 rounded-full font-semibold hover:bg-indigo-700 hover:scale-[1.02] transition-all">
+        <button onClick={()=> navigate("/checkout")} className="mt-4 w-full bg-indigo-600 text-white py-3 rounded-full font-semibold hover:bg-indigo-700 hover:scale-[1.02] transition-all">
           Checkout
         </button>
       </section>
