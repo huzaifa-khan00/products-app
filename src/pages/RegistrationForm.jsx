@@ -8,7 +8,6 @@ import { yupResolver } from "@hookform/resolvers/yup"
 import * as yup from 'yup';
 
 function RegistrationForm() {
-  let [isSubmit, setIsSubmit] = useState(false);
   let [name, setName] = useState("Guest");
   // let [email, setEmail] = useState("");
   // let [password, setPassword] = useState("");
@@ -31,8 +30,8 @@ function RegistrationForm() {
   // let [isData, setIsData] = useState(false);
   let [isEvent, setIsEvent] = useState(false);
   let navigate = useNavigate();
-  let { theme, toggleTheme } = useContext(ThemeContext);
-  let [isClicked, setIsClicked] = useState(false);
+  // let { theme, toggleTheme } = useContext(ThemeContext);
+  // let [isClicked, setIsClicked] = useState(false);
   // let [emailErr, setEmailErr] = useState(false);
   // let [passwordErr, setPasswordErr] = useState(false);
   // let emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -40,7 +39,7 @@ function RegistrationForm() {
   //   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
   let [location, setLocation] = useState(null);
   let [isLoading, setIsLoading] = useState(false);
-  let isFirstRender = useRef(true);
+  // let isFirstRender = useRef(true);
 
   function onSubmit(data) {
     userAccount.name = data.fullName
@@ -60,15 +59,14 @@ function RegistrationForm() {
   const loginSchema = yup.object({
     fullName: yup.string("Name should contain only text").required("Name can't be empty"),
     email: yup.string().email().required("Email is required").matches(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/),
-    password: yup.string()
-      .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/, "Password must be at least 8 characters and include uppercase, lowercase, a number, and a special character")
-      .required("Password is required")
+    password: yup.string().required("Password is required").matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/, "Password must be at least 8 characters and include uppercase, lowercase, a number, and a special character")
+
   });
 
   const {
     handleSubmit,
     register,
-    formState: { errors } } = useForm({
+    formState: { errors, isDirty, isSubmitting, isSubmitted, isSubmitSuccessful } } = useForm({
       resolver: yupResolver(loginSchema),
       mode: "onChange"
     });
@@ -332,27 +330,32 @@ function RegistrationForm() {
                 },
               );
             }}
-            className="w-full mt-2 bg-indigo-600 text-white py-2.5 rounded-full font-semibold shadow-md shadow-indigo-600/20 hover:bg-indigo-700 hover:scale-[1.02] transition-all flex items-center justify-center gap-2"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={2}
-              stroke="currentColor"
-              className="h-5 w-5"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"
-              />
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"
-              />
-            </svg>
+            className={`w-full mt-2 py-2.5 rounded-full font-semibold shadow-md transition-all flex items-center justify-center gap-2 ${location
+              ? "bg-green-600 shadow-green-600/20 hover:bg-green-700"
+              : "bg-indigo-600 shadow-indigo-600/20 hover:bg-indigo-700 hover:scale-[1.02]"
+              } text-white`}>
+            {!location && (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={2}
+                stroke="currentColor"
+                className="h-5 w-5"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"
+                />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"
+                />
+              </svg>
+            )}
+
             {isLoading ? (
               <svg
                 className="animate-spin h-5 w-5 text-white"
@@ -360,19 +363,8 @@ function RegistrationForm() {
                 fill="none"
                 viewBox="0 0 24 24"
               >
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                />
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-                />
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
               </svg>
             ) : !isLoading && location ? (
               <>
@@ -384,22 +376,7 @@ function RegistrationForm() {
                   stroke="currentColor"
                   className="h-5 w-5 text-white"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M4.5 12.75l6 6 9-13.5"
-                    strokeDasharray="30"
-                    strokeDashoffset="30"
-                  >
-                    <animate
-                      attributeName="stroke-dashoffset"
-                      from="30"
-                      to="0"
-                      dur="0.4s"
-                      fill="freeze"
-                      begin="0s"
-                    />
-                  </path>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                 </svg>
                 <span>Location shared</span>
               </>
@@ -416,7 +393,7 @@ function RegistrationForm() {
             type="submit"
             className="w-full mt-2 bg-indigo-600 text-white py-2.5 rounded-full font-semibold shadow-md shadow-indigo-600/20 hover:bg-indigo-700 hover:scale-[1.02] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isEvent ? (
+            {isSubmitted && isSubmitSuccessful ? (
               <span className="flex items-center justify-center w-full">
                 <svg
                   className="animate-spin h-5 w-5 text-white"
@@ -439,9 +416,9 @@ function RegistrationForm() {
                   />
                 </svg>
               </span>
-            ) : (
-              "Continue"
-            )}
+            ) : isSubmitted && !isSubmitSuccessful ? (
+              "Retry"
+            ) : ("Continue")}
           </button>
         </form>
       </div>
