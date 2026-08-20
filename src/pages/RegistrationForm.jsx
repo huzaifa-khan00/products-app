@@ -1,80 +1,51 @@
 import { useState, useRef, useEffect } from "react";
+import { useForm } from 'react-hook-form'
 import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { ThemeContext } from "../../context/ThemeContext";
 import axios from "axios";
+import { yupResolver } from "@hookform/resolvers/yup"
+import * as yup from 'yup';
 
 function RegistrationForm() {
   let [isSubmit, setIsSubmit] = useState(false);
   let [name, setName] = useState("Guest");
-  let [email, setEmail] = useState("");
-  let [password, setPassword] = useState("");
+  // let [email, setEmail] = useState("");
+  // let [password, setPassword] = useState("");
   let [address, setAddress] = useState({
     city: "",
     district: "",
     postcode: "",
   });
-  let nameTimerRef = useRef(null);
-  let emailTimerRef = useRef(null);
-  let passwordTimerRef = useRef(null);
+  // let nameTimerRef = useRef(null);
+  // let emailTimerRef = useRef(null);
+  // let passwordTimerRef = useRef(null);
   let userAccount = {
-    name: name,
-    email: email,
-    password: password,
+    name: '',
+    email: '',
+    password: '',
     isFirstLogin: true,
     address: address,
   };
+
   let [isData, setIsData] = useState(false);
   let [isEvent, setIsEvent] = useState(false);
   let navigate = useNavigate();
   let { theme, toggleTheme } = useContext(ThemeContext);
   let [isClicked, setIsClicked] = useState(false);
-  let [emailErr, setEmailErr] = useState(false);
-  let [passwordErr, setPasswordErr] = useState(false);
-  let emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-  let passwordRegex =
-    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+  // let [emailErr, setEmailErr] = useState(false);
+  // let [passwordErr, setPasswordErr] = useState(false);
+  // let emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  // let passwordRegex =
+  //   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
   let [location, setLocation] = useState(null);
   let [isLoading, setIsLoading] = useState(false);
   let isFirstRender = useRef(true);
 
-  function isFieldValid(fieldName, value) {
-    if (fieldName === "email") return emailRegex.test(value);
-    if (fieldName === "password") return passwordRegex.test(value);
-    return true;
-  }
-
-  const handleChange = (e) => {
-    let n = e.target.name;
-    let v = e.target.value;
-
-    if (n === "fullName") {
-      setName(v);
-    } else if (n === "email") {
-      if (isFieldValid("email", v)) {
-        setEmailErr(false);
-        setEmail(v);
-      } else {
-        setEmailErr(true);
-      }
-    } else if (n === "password") {
-      if (isFieldValid("password", v)) {
-        setPassword(v);
-        setPasswordErr(false);
-      } else {
-        setPasswordErr(true);
-      }
-    }
-  };
-
-  useEffect(() => {
-    let existingUser = JSON.parse(window.localStorage.getItem("user"));
-    if (existingUser) {
-      navigate("/home", { replace: true, state:{justLoggedIn: true}});
-    }
-  }, []);
-
-  useEffect(() => {
+  function onSubmit(data) {
+    userAccount.name = data.fullName
+    userAccount.email = data.email
+    userAccount.password = data.password
     if (isFirstRender.current) {
       isFirstRender.current = false;
       return;
@@ -83,7 +54,61 @@ function RegistrationForm() {
     let user = JSON.parse(window.localStorage.getItem("user"));
     setIsData(user);
     console.log(user);
-  }, [name, email, password, address]);
+    navigate('/home', { replace: true });
+  }
+
+  const loginSchema = yup.object({
+    fullName: yup.string("Name should contain only text").required("Name can't be empty"),
+    email: yup.string().email().required("Email is required").matches(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/),
+    password: yup.string()
+      .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/, "Password must be at least 8 characters and include uppercase, lowercase, a number, and a special character")
+      .required("Password is required")
+  });
+
+  const {
+    handleSubmit,
+    register,
+    formState: { errors } } = useForm({
+      resolver: yupResolver(loginSchema),
+      mode: "onChange"
+    });
+
+
+  // function isFieldValid(fieldName, value) {
+  //   if (fieldName === "email") return emailRegex.test(value);
+  //   if (fieldName === "password") return passwordRegex.test(value);
+  //   return true;
+  // }
+
+  // const handleChange = (e) => {
+  //   let n = e.target.name;
+  //   let v = e.target.value;
+
+  //   if (n === "fullName") {
+  //     setName(v);
+  //   } else if (n === "email") {
+  //     if (isFieldValid("email", v)) {
+  //       setEmailErr(false);
+  //       setEmail(v);
+  //     } else {
+  //       setEmailErr(true);
+  //     }
+  //   } else if (n === "password") {
+  //     if (isFieldValid("password", v)) {
+  //       setPassword(v);
+  //       setPasswordErr(false);
+  //     } else {
+  //       setPasswordErr(true);
+  //     }
+  //   }
+  // };
+
+  useEffect(() => {
+    let existingUser = JSON.parse(window.localStorage.getItem("user"));
+    if (existingUser) {
+      navigate("/home", { replace: true, state: { justLoggedIn: true } });
+    }
+  }, []);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-slate-900/50 backdrop-blur-sm animate-fadeIn overflow-hidden">
@@ -116,14 +141,15 @@ function RegistrationForm() {
           Just a few details before you check out.
         </p>
 
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            setTimeout(() => {
-              isData && navigate("/home", { replace: true, state:{justLoggedIn: true}});
-              setIsEvent(false);
-            }, 2000);
-          }}
+        <form onSubmit={handleSubmit(onSubmit)}
+          // onSubmit={(e) => {
+          //   e.preventDefault();
+          //   // ;
+          //   // setTimeout(() => {
+          //   //   isData && navigate("/home", { replace: true, state: { justLoggedIn: true } });
+          //   //   setIsEvent(false);
+          //   // }, 2000);
+          // }}
           className="space-y-4"
         >
           <div>
@@ -149,12 +175,12 @@ function RegistrationForm() {
                 />
               </svg>
 
-              <input
+              <input {...register("fullName")}
                 onChange={(e) => {
-                  nameTimerRef.current && clearTimeout(nameTimerRef.current);
-                  nameTimerRef.current = setTimeout(() => {
-                    handleChange(e);
-                  }, 2000);
+                  // nameTimerRef.current && clearTimeout(nameTimerRef.current);
+                  // nameTimerRef.current = setTimeout(() => {
+                  //   handleChange(e);
+                  // }, 2000);
                 }}
                 type="text"
                 id="fullName"
@@ -162,6 +188,7 @@ function RegistrationForm() {
                 placeholder="John Doe"
                 className="w-full rounded-xl border border-slate-200 dark:border-slate-600 bg-white/70 dark:bg-slate-700/60 text-gray-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 pl-10 pr-3 py-2.5 shadow-sm transition-colors focus:border-indigo-400 focus:bg-white dark:focus:bg-slate-700 focus:outline-none focus:ring-4 focus:ring-indigo-200/60 dark:focus:ring-indigo-900/40"
               />
+              {errors?.fullName && <span>{errors?.fullName?.message}</span>}
             </div>
           </div>
 
@@ -187,21 +214,21 @@ function RegistrationForm() {
                   d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"
                 />
               </svg>
-              <input
-                onChange={(e) => {
-                  let valid = isFieldValid("email", e.target.value);
-                  setEmailErr(!valid);
+              <input {...register("email")}
+                // onChange={(e) => {
+                //   let valid = isFieldValid("email", e.target.value);
+                //   setEmailErr(!valid);
 
-                  if (!isFieldValid("email", e.target.value)) {
-                    handleChange(e);
-                  } else {
-                    emailTimerRef.current &&
-                      clearTimeout(emailTimerRef.current);
-                    emailTimerRef.current = setTimeout(() => {
-                      handleChange(e);
-                    }, 2000);
-                  }
-                }}
+                //   if (!isFieldValid("email", e.target.value)) {
+                //     handleChange(e);
+                //   } else {
+                //     emailTimerRef.current &&
+                //       clearTimeout(emailTimerRef.current);
+                //     emailTimerRef.current = setTimeout(() => {
+                //       handleChange(e);
+                //     }, 2000);
+                //   }
+                // }}
                 type="email"
                 id="email"
                 name="email"
@@ -209,11 +236,12 @@ function RegistrationForm() {
                 className="w-full rounded-xl border border-slate-200 dark:border-slate-600 bg-white/70 dark:bg-slate-700/60 text-gray-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 pl-10 pr-3 py-2.5 shadow-sm transition-colors focus:border-indigo-400 focus:bg-white dark:focus:bg-slate-700 focus:outline-none focus:ring-4 focus:ring-indigo-200/60 dark:focus:ring-indigo-900/40"
               />
             </div>
-            {emailErr && (
+            {/* {true && (  
               <p className="text-xs text-red-500 mt-1.5 ml-1">
                 Please enter a valid email address (e.g., name@example.com).
               </p>
-            )}
+            )} */}
+            {errors?.email && <span>{errors?.email?.message}</span>}
           </div>
 
           <div>
@@ -238,21 +266,21 @@ function RegistrationForm() {
                   d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"
                 />
               </svg>
-              <input
-                onChange={(e) => {
-                  let valid = isFieldValid("password", e.target.value);
-                  setPasswordErr(!valid);
+              <input {...register("password")}
+                // onChange={(e) => {
+                //   let valid = isFieldValid("password", e.target.value);
+                //   setPasswordErr(!valid);
 
-                  if (!isFieldValid("password", e.target.value)) {
-                    handleChange(e);
-                  } else {
-                    passwordTimerRef.current &&
-                      clearTimeout(passwordTimerRef.current);
-                    passwordTimerRef.current = setTimeout(() => {
-                      handleChange(e);
-                    }, 2000);
-                  }
-                }}
+                //   if (!isFieldValid("password", e.target.value)) {
+                //     handleChange(e);
+                //   } else {
+                //     passwordTimerRef.current &&
+                //       clearTimeout(passwordTimerRef.current);
+                //     passwordTimerRef.current = setTimeout(() => {
+                //       handleChange(e);
+                //     }, 2000);
+                //   }
+                // }}
                 type="password"
                 id="password"
                 name="password"
@@ -260,12 +288,13 @@ function RegistrationForm() {
                 className="w-full rounded-xl border border-slate-200 dark:border-slate-600 bg-white/70 dark:bg-slate-700/60 text-gray-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 pl-10 pr-3 py-2.5 shadow-sm transition-colors focus:border-indigo-400 focus:bg-white dark:focus:bg-slate-700 focus:outline-none focus:ring-4 focus:ring-indigo-200/60 dark:focus:ring-indigo-900/40"
               />
             </div>
-            {passwordErr && (
+            {/* {true && (
               <p className="text-xs text-red-500 mt-1.5 ml-1">
                 Must be 8+ characters with uppercase, lowercase, a number, and a
                 special character.
               </p>
-            )}
+            )} */}
+            {errors?.password && <span>{errors?.password?.message}</span>}
           </div>
 
           <div
@@ -380,12 +409,14 @@ function RegistrationForm() {
           </div>
 
           <button
-            onClick={() => setIsEvent(true)}
-            disabled={emailErr || passwordErr ? true : false}
+            // onClick={() => {setIsEvent(true)
+            //   navigate('/home')
+            // }}
+            // disabled={emailErr || passwordErr ? true : false}
             type="submit"
             className="w-full mt-2 bg-indigo-600 text-white py-2.5 rounded-full font-semibold shadow-md shadow-indigo-600/20 hover:bg-indigo-700 hover:scale-[1.02] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isEvent ? (
+            {/* {isEvent ? (
               <span className="flex items-center justify-center w-full">
                 <svg
                   className="animate-spin h-5 w-5 text-white"
@@ -408,9 +439,9 @@ function RegistrationForm() {
                   />
                 </svg>
               </span>
-            ) : (
-              "Continue"
-            )}
+            ) : ( */}
+            Continue
+            {/* )} */}
           </button>
         </form>
       </div>
