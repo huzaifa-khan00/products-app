@@ -28,7 +28,7 @@ function RegistrationForm() {
     address: address,
   };
 
-  let [isData, setIsData] = useState(false);
+  // let [isData, setIsData] = useState(false);
   let [isEvent, setIsEvent] = useState(false);
   let navigate = useNavigate();
   let { theme, toggleTheme } = useContext(ThemeContext);
@@ -46,15 +46,15 @@ function RegistrationForm() {
     userAccount.name = data.fullName
     userAccount.email = data.email
     userAccount.password = data.password
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      return;
-    }
+
     window.localStorage.setItem("user", JSON.stringify(userAccount));
     let user = JSON.parse(window.localStorage.getItem("user"));
-    setIsData(user);
-    console.log(user);
-    navigate('/home', { replace: true });
+
+    setTimeout(() => {
+      user && navigate("/home", { replace: true, state: { justLoggedIn: true } });
+      setIsEvent(false);
+    }, 2000);
+    console.log(userAccount)
   }
 
   const loginSchema = yup.object({
@@ -141,14 +141,14 @@ function RegistrationForm() {
           Just a few details before you check out.
         </p>
 
-        <form onSubmit={handleSubmit(onSubmit)}
+        <form onSubmit={(e) => {
+          handleSubmit(onSubmit)(e)
+          setIsEvent(true)
+        }}
           // onSubmit={(e) => {
           //   e.preventDefault();
           //   // ;
-          //   // setTimeout(() => {
-          //   //   isData && navigate("/home", { replace: true, state: { justLoggedIn: true } });
-          //   //   setIsEvent(false);
-          //   // }, 2000);
+          //   //
           // }}
           className="space-y-4"
         >
@@ -176,19 +176,19 @@ function RegistrationForm() {
               </svg>
 
               <input {...register("fullName")}
-                onChange={(e) => {
-                  // nameTimerRef.current && clearTimeout(nameTimerRef.current);
-                  // nameTimerRef.current = setTimeout(() => {
-                  //   handleChange(e);
-                  // }, 2000);
-                }}
+                // onChange={(e) => {
+                //   // nameTimerRef.current && clearTimeout(nameTimerRef.current);
+                //   // nameTimerRef.current = setTimeout(() => {
+                //   //   handleChange(e);
+                //   // }, 2000);
+                // }}
                 type="text"
                 id="fullName"
                 name="fullName"
                 placeholder="John Doe"
                 className="w-full rounded-xl border border-slate-200 dark:border-slate-600 bg-white/70 dark:bg-slate-700/60 text-gray-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 pl-10 pr-3 py-2.5 shadow-sm transition-colors focus:border-indigo-400 focus:bg-white dark:focus:bg-slate-700 focus:outline-none focus:ring-4 focus:ring-indigo-200/60 dark:focus:ring-indigo-900/40"
               />
-              {errors?.fullName && <span>{errors?.fullName?.message}</span>}
+              {errors?.fullName && <span className="text-xs text-red-500 mt-1.5 ml-1">{errors?.fullName?.message}</span>}
             </div>
           </div>
 
@@ -241,7 +241,7 @@ function RegistrationForm() {
                 Please enter a valid email address (e.g., name@example.com).
               </p>
             )} */}
-            {errors?.email && <span>{errors?.email?.message}</span>}
+            {errors?.email && <span className="text-xs text-red-500 mt-1.5 ml-1">{errors?.email?.message}</span>}
           </div>
 
           <div>
@@ -294,7 +294,7 @@ function RegistrationForm() {
                 special character.
               </p>
             )} */}
-            {errors?.password && <span>{errors?.password?.message}</span>}
+            {errors?.password && <span className="text-xs text-red-500 mt-1.5 ml-1">{errors?.password?.message}</span>}
           </div>
 
           <div
@@ -416,7 +416,7 @@ function RegistrationForm() {
             type="submit"
             className="w-full mt-2 bg-indigo-600 text-white py-2.5 rounded-full font-semibold shadow-md shadow-indigo-600/20 hover:bg-indigo-700 hover:scale-[1.02] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {/* {isEvent ? (
+            {isEvent ? (
               <span className="flex items-center justify-center w-full">
                 <svg
                   className="animate-spin h-5 w-5 text-white"
@@ -439,9 +439,9 @@ function RegistrationForm() {
                   />
                 </svg>
               </span>
-            ) : ( */}
-            Continue
-            {/* )} */}
+            ) : (
+              "Continue"
+            )}
           </button>
         </form>
       </div>
