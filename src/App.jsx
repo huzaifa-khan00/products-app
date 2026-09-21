@@ -27,6 +27,7 @@ function App() {
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<CheckoutPage />} />
         </Route>
+        {/* Parent Route */}
         <Route>
         <Route path="/products" element={<Products />} />
         <Route path="/product-details/:prodId" element={<Product />} />
