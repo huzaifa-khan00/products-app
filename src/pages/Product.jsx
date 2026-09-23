@@ -1,5 +1,5 @@
 import { useEffect, useState, useContext } from "react";
-import { Link, useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import axios from "axios";
 import Loading from "../components/Loading";
 import BackBtn from "../components/BackBtn";
@@ -11,11 +11,9 @@ import AddedToCartModal from "../components/AddedToCartModal.jsx";
 function Product() {
   let [productData, setProductData] = useState(null);
   let { prodId } = useParams();
-  let navigate = useNavigate();
   let [isError, setIsError] = useState(false);
   let { cartItems, setCartItems } = useContext(CartContext);
   let [quantity, setQuantity] = useState(1);
-  let [prevProduct, setPrevProduct] = useState([]);
   let [showModal, setShowModal] = useState(false);
   let [isAdded, setIsAdded] = useState(false);
 
