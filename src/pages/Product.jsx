@@ -5,7 +5,7 @@ import Loading from "../components/Loading";
 import BackBtn from "../components/BackBtn";
 import NotFound from "../components/NotFound";
 import { CartContext } from "../../context/CartItemContext";
-import AlreadyInCartModal from '../components/AlreadyInCartModal.jsx'
+import AlreadyInCartModal from "../components/AlreadyInCartModal.jsx";
 import AddedToCartModal from "../components/AddedToCartModal.jsx";
 
 function Product() {
@@ -114,7 +114,8 @@ function Product() {
                   >
                     Quantity:
                   </label>
-                  <input onChange={(e)=> setQuantity(Number(e.target.value))}
+                  <input
+                    onChange={(e) => setQuantity(Number(e.target.value))}
                     type="number"
                     id="quantity"
                     name="quantity"
@@ -133,11 +134,11 @@ function Product() {
                         category: productData?.category,
                         price: productData?.price,
                         image: productData?.thumbnail,
-                        quantity: typeof quantity === 'object' ? 1 : quantity
+                        quantity: typeof quantity === "object" ? 1 : quantity,
                       };
-                      cartItems.some((prod)=> prod.id === newItem.id) ? setShowModal(true)
-                      :
-                      setCartItems([...cartItems, newItem])
+                      cartItems.some((prod) => prod.id === newItem.id)
+                        ? setShowModal(true)
+                        : setCartItems([...cartItems, newItem]);
                       setIsAdded(true);
                     }}
                     className="bg-indigo-600 flex gap-2 items-center text-white px-6 py-2 rounded-full hover:bg-indigo-700 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all"
@@ -153,11 +154,17 @@ function Product() {
           </div>
         </div>
       </div>
-      {showModal && <AlreadyInCartModal onClose={() => {
-        setIsAdded(false);
-        setShowModal(false)
-      }} />}
-      {!showModal && isAdded && <AddedToCartModal show={isAdded} setShow={setIsAdded}/>}
+      {showModal && (
+        <AlreadyInCartModal
+          onClose={() => {
+            setIsAdded(false);
+            setShowModal(false);
+          }}
+        />
+      )}
+      {!showModal && isAdded && (
+        <AddedToCartModal show={isAdded} setShow={setIsAdded} />
+      )}
     </>
   );
 }
